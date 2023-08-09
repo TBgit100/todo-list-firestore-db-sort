@@ -75,7 +75,11 @@ import { db } from "@/firebase";
 // firebase ref
 
 const todosCollectionRef = collection(db, "todo");
-const todosCollectionQuery = query(todosCollectionRef, orderBy("date", "desc"), limit(10));
+const todosCollectionQuery = query(
+  todosCollectionRef,
+  orderBy("date", "desc"),
+  limit(10)
+);
 
 // todo
 
@@ -95,7 +99,7 @@ const todos = ref([
 // get todo
 
 onMounted(() => {
-  onSnapshot(todosCollectionRef, (querySnapshot) => {
+  onSnapshot(todosCollectionQuery, (querySnapshot) => {
     const fbTodos = [];
     querySnapshot.forEach((doc) => {
       const todo = {
