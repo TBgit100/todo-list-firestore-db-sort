@@ -58,8 +58,20 @@
 
 <script setup>
 // import
-import { ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
+import { ref, onMounted } from "vue";
+import {
+  collection,
+  onSnapshot,
+  addDoc,
+  doc,
+  deleteDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "@/firebase";
+
+// firebase ref
+
+const todosCollectionRef = collection(db, "todo");
 
 // todo
 
@@ -76,35 +88,50 @@ const todos = ref([
   // },
 ]);
 
+// get todo
+
+onMounted(() => {
+  onSnapshot(todosCollectionRef, (querySnapshot) => {
+    const fbTodos = [];
+    querySnapshot.forEach((doc) => {
+      const todo = {
+        id: doc.id,
+        content: doc.data().content,
+        done: doc.data().done,
+      };
+      fbTodos.push(todo);
+    });
+    todos.value = fbTodos;
+  });
+});
+
 // add todo
 
 const newTodoContent = ref("");
 
 const addTodo = () => {
-  {
-    const newTodo = {
-      id: uuidv4(),
-      content: newTodoContent.value,
-      done: false,
-    };
-
-    todos.value.unshift(newTodo);
-    newTodoContent.value = "";
-  }
+  addDoc(todosCollectionRef, {
+    content: newTodoContent.value,
+    done: false,
+  });
+  newTodoContent.value = "";
 };
 
 // delete todo
 
 const deleteTodo = (id) => {
-  todos.value = todos.value.filter((todo) => todo.id != id);
+  deleteDoc(doc(todosCollectionRef, id));
 };
 
 // toggle done
 
-const toggleDone = id =>{
-  const index = todos.value.findIndex(todo => todo.id === id);
-  todos.value[index].done = !todos.value[index].done;
-}
+const toggleDone = (id) => {
+  const index = todos.value.findIndex((todo) => todo.id === id);
+
+  updateDoc(doc(todosCollectionRef, id), {
+    done: !todos.value[index].done,
+  });
+};
 </script>
 
 
