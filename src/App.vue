@@ -66,12 +66,16 @@ import {
   doc,
   deleteDoc,
   updateDoc,
+  query,
+  orderBy,
+  limit,
 } from "firebase/firestore";
 import { db } from "@/firebase";
 
 // firebase ref
 
 const todosCollectionRef = collection(db, "todo");
+const todosCollectionQuery = query(todosCollectionRef, orderBy("date", "desc"), limit(10));
 
 // todo
 
@@ -113,6 +117,7 @@ const addTodo = () => {
   addDoc(todosCollectionRef, {
     content: newTodoContent.value,
     done: false,
+    date: Date.now(),
   });
   newTodoContent.value = "";
 };
